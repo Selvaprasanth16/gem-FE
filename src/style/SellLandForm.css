@@ -1,0 +1,610 @@
+/* Container */
+.sell-form-container {
+  min-height: 100vh;
+  background: #f9fafb;
+  padding: 40px 20px;
+}
+
+/* Card */
+.sell-form-card {
+  max-width: 900px;
+  margin: 0 auto;
+  background: transparent;
+}
+
+.sell-form-title {
+  text-align: center;
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: #1f2937;
+  margin-bottom: 40px;
+}
+
+/* Step Indicators */
+.step-indicators {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 60px;
+}
+
+.step-indicator {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.125rem;
+  background: #e5e7eb;
+  color: #9ca3af;
+  transition: all 0.3s ease;
+}
+
+.step-indicator.active {
+  background: #10b981;
+  color: white;
+}
+
+.step-indicator.completed {
+  background: #10b981;
+  color: white;
+}
+
+.step-line {
+  width: 60px;
+  height: 2px;
+  background: #e5e7eb;
+}
+
+.step-line.active {
+  background: #10b981;
+}
+
+/* Step Content */
+.step {
+  margin-top: 20px;
+}
+
+.step h3 {
+  text-align: center;
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 40px;
+}
+
+/* Land Type Cards */
+.land-type-options {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.land-type-btn {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: white;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 24px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: left;
+}
+
+.land-type-btn:hover {
+  border-color: #10b981;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.1);
+  transform: translateY(-2px);
+}
+
+.land-type-btn.selected {
+  border-color: #10b981;
+  background: linear-gradient(135deg, #ffffff, #d1fae5);
+  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.2);
+}
+
+/* Form Container */
+.form-container {
+  max-width: 700px;
+  margin: 0 auto;
+  background: white;
+  padding: 40px;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* Back Button */
+.back-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #10b981;
+  font-weight: 600;
+  font-size: 0.9375rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  margin-bottom: 24px;
+  padding: 8px 0;
+  transition: opacity 0.2s ease;
+}
+
+.back-button:hover {
+  opacity: 0.7;
+}
+
+/* Form Header */
+.form-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 40px;
+}
+
+.form-header h3 {
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0;
+}
+
+.land-type-badge {
+  background: #10b981;
+  color: white;
+  padding: 8px 20px;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+/* Form Grid */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.form-grid-full {
+  grid-column: 1 / -1;
+}
+
+/* Form Fields */
+.form-instruction {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-instruction label,
+.form-instruction span {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.form-instruction input,
+.form-instruction textarea,
+.form-instruction select {
+  padding: 12px 16px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  font-size: 0.9375rem;
+  color: #1f2937;
+  transition: all 0.2s ease;
+  background: white;
+}
+
+.form-instruction input::placeholder,
+.form-instruction textarea::placeholder {
+  color: #9ca3af;
+}
+
+.form-instruction input:focus,
+.form-instruction textarea:focus,
+.form-instruction select:focus {
+  border-color: #10b981;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+
+.form-instruction textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+/* Submit Button */
+.submit-button {
+  width: 100%;
+  background: #10b981;
+  color: white;
+  border: none;
+  padding: 16px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 1.125rem;
+  font-weight: 700;
+  transition: all 0.3s ease;
+  margin-top: 32px;
+}
+
+.submit-button:hover {
+  background: #059669;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(16, 185, 129, 0.3);
+}
+
+.submit-button:active {
+  transform: translateY(0);
+}
+
+/* Success Modal */
+.success-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.success-box {
+  background: white;
+  padding: 40px;
+  border-radius: 16px;
+  text-align: center;
+  max-width: 480px;
+  width: 90%;
+  position: relative;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.close-modal {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: transparent;
+  border: none;
+  font-size: 1.5rem;
+  color: #9ca3af;
+  cursor: pointer;
+  padding: 4px 8px;
+  line-height: 1;
+  transition: color 0.2s ease;
+}
+
+.close-modal:hover {
+  color: #1f2937;
+}
+
+.success-icon {
+  width: 64px;
+  height: 64px;
+  background: #10b981;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 24px;
+}
+
+.success-icon svg {
+  width: 36px;
+  height: 36px;
+  color: white;
+}
+
+.success-box h3 {
+  color: #10b981;
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.success-box p {
+  color: #6b7280;
+  font-size: 1rem;
+  margin-bottom: 24px;
+  line-height: 1.6;
+}
+
+.success-details {
+  background: #f9fafb;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 24px;
+  text-align: left;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.detail-row:last-child {
+  border-bottom: none;
+}
+
+.detail-label {
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.detail-value {
+  color: #6b7280;
+}
+
+.success-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.success-actions button {
+  flex: 1;
+  padding: 12px 24px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 0.9375rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.whatsapp-button {
+  background: #10b981;
+  color: white;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.whatsapp-button:hover {
+  background: #059669;
+}
+
+.new-listing-button {
+  background: white;
+  color: #1f2937;
+  border: 2px solid #e5e7eb;
+}
+
+.new-listing-button:hover {
+  background: #f9fafb;
+  border-color: #d1d5db;
+}
+
+/* Contact Preference */
+.contact-preference h3 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 0.8rem;
+  color: #111827;
+}
+
+.radio-box {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: linear-gradient(to right, #ecfdf5, #f0fdf4);
+  border: 1px solid #bbf7d0;
+  padding: 1rem;
+  border-radius: 8px;
+}
+
+.radio-box input {
+  accent-color: #059669;
+}
+
+.radio-box label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: #374151;
+  cursor: pointer;
+}
+/* Contact Preference Dropdown */
+.contact-select {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  font-weight: 500;
+  color: #374151;
+}
+
+.contact-select span {
+  font-size: 0.95rem;
+  color: #1f2937;
+}
+
+.contact-select select {
+  width: 100%;
+  padding: 0.8rem 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 1rem;
+  color: #374151;
+  background: #ffffff;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.contact-select select:hover {
+  border-color: #059669;
+  background: #f0fdf4;
+}
+
+.contact-select select:focus {
+  outline: none;
+  border-color: #059669;
+  box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.2);
+}
+
+/* Land Type Icon and Text Styles */
+.land-type-icon {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  flex-shrink: 0;
+}
+
+.land-type-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.land-type-text strong {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.land-type-text small {
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .sell-form-container {
+    padding: 24px 16px;
+  }
+
+  .sell-form-title {
+    font-size: 2rem;
+  }
+
+  .step-indicators {
+    gap: 12px;
+    margin-bottom: 40px;
+  }
+
+  .step-indicator {
+    width: 40px;
+    height: 40px;
+    font-size: 1rem;
+  }
+
+  .step-line {
+    width: 40px;
+  }
+
+  .step h3 {
+    font-size: 1.5rem;
+    margin-bottom: 24px;
+  }
+
+  .land-type-options {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .land-type-btn {
+    padding: 20px;
+  }
+
+  .form-container {
+    padding: 24px;
+  }
+
+  .form-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .success-box {
+    padding: 32px 24px;
+  }
+
+  .success-actions {
+    flex-direction: column;
+  }
+
+  .success-actions button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .sell-form-title {
+    font-size: 1.75rem;
+  }
+
+  .step-indicators {
+    gap: 8px;
+  }
+
+  .step-indicator {
+    width: 36px;
+    height: 36px;
+    font-size: 0.875rem;
+  }
+
+  .step-line {
+    width: 30px;
+  }
+
+  .step h3 {
+    font-size: 1.25rem;
+  }
+
+  .land-type-btn {
+    padding: 16px;
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .land-type-text {
+    align-items: center;
+  }
+
+  .form-container {
+    padding: 20px;
+  }
+
+  .form-header h3 {
+    font-size: 1.5rem;
+  }
+
+  .submit-button {
+    font-size: 1rem;
+    padding: 14px;
+  }
+
+  .success-box {
+    padding: 24px 20px;
+  }
+
+  .success-icon {
+    width: 56px;
+    height: 56px;
+  }
+
+  .success-box h3 {
+    font-size: 1.25rem;
+  }
+}
