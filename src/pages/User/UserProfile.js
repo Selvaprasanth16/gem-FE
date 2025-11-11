@@ -23,7 +23,7 @@ const UserProfile = () => {
           phone: u?.phone || ''
         });
       } catch (e) {
-        setError(e.message || 'Failed to load profile');
+        setMessageModal({ open: true, type: 'error', title: 'Load Failed', message: e.message || 'Failed to load profile' });
       } finally {
         setLoading(false);
       }
@@ -52,7 +52,7 @@ const UserProfile = () => {
 
   const changePassword = async (e) => {
     e.preventDefault();
-    setError(''); setMessage('');
+    setMessageModal({ open: false, type: 'info', title: '', message: '' });
     try {
       setChanging(true);
       await userService.changePassword(undefined, passwords.old, passwords.next);
