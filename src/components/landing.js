@@ -49,6 +49,8 @@ const CountUp = ({ end, duration = 2000, suffix = '' }) => {
 const Landing = () => {
   return (
     <div className="landing">
+      {/* Hero Banner Section */}
+
       <div className="landing-hero">
         <h1 className="landing-title">
           Do you want to <span className="highlight-text">Sell or Buy</span> Land?

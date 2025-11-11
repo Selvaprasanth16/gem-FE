@@ -1,12 +1,19 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import "../style/SellLandForm.css";
 import {
   ArrowLeft,
   Check,
   X,
-  MessageCircle
+  MessageCircle,
+  AlertCircle,
+  Upload,
+  Image as ImageIcon
 } from "lucide-react";
 import Navbar from "./Navbar";
+import sellLandService from "../services/sellLand/sellLandService";
+import imageUploadService from "../services/admin/imageUploadService";
+import authService from "../services/auth/authService";
 
 const landTypes = [
   { key: "Coconut Land", label: "Coconut Land", desc: "Agricultural coconut plantation", icon: "🥥" },
@@ -16,6 +23,8 @@ const landTypes = [
 ];
 
 const SellLandForm = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedLandType, setSelectedLandType] = useState("");
   const [formData, setFormData] = useState({
@@ -25,7 +34,36 @@ const SellLandForm = () => {
     price: "",
     area: "",
   });
+  const [selectedFiles, setSelectedFiles] = useState([]);
+  const [uploadedImages, setUploadedImages] = useState([]);
+  const [uploading, setUploading] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  // Restore form data after login
+  useEffect(() => {
+    const pendingForm = sessionStorage.getItem('pendingSellForm');
+    if (pendingForm && authService.isAuthenticated()) {
+      try {
+        const savedData = JSON.parse(pendingForm);
+        setFormData(savedData.formData);
+        setSelectedLandType(savedData.selectedLandType);
+        setCurrentStep(savedData.currentStep);
+        
+        // Check if we should auto-submit
+        const params = new URLSearchParams(location.search);
+        if (params.get('action') === 'submit') {
+          // Trigger submit after a short delay to ensure state is set
+          setTimeout(() => {
+            document.querySelector('.submit-button')?.click();
+          }, 500);
+        }
+      } catch (err) {
+        console.error('Error restoring form data:', err);
+      }
+    }
+  }, [location]);
 
   const handleLandTypeSelect = (type) => {
     setSelectedLandType(type);
@@ -37,15 +75,82 @@ const SellLandForm = () => {
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleSubmit = (e) => {
+  const handleFileSelect = (e) => {
+    const files = Array.from(e.target.files);
+    if (files.length > 10) {
+      alert('Maximum 10 images allowed');
+      return;
+    }
+    setSelectedFiles(files);
+  };
+
+  const handleRemoveSelectedFile = (index) => {
+    const newFiles = selectedFiles.filter((_, i) => i !== index);
+    setSelectedFiles(newFiles);
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setShowSuccess(true);
+    setError("");
+
+    // Check if user is authenticated
+    if (!authService.isAuthenticated()) {
+      // Save form data to sessionStorage to continue after login
+      sessionStorage.setItem('pendingSellForm', JSON.stringify({
+        formData,
+        selectedLandType,
+        currentStep
+      }));
+      
+      // Redirect to login with return URL
+      navigate('/login?redirect=/sell&action=submit');
+      return;
+    }
+
+    if (selectedFiles.length === 0) {
+      setError('Please select at least one image');
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      // Step 1: Upload images to Cloudinary
+      const imageResponse = await imageUploadService.uploadLandImages(selectedFiles);
+      const imageUrls = imageResponse.image_urls;
+      
+      // Step 2: Prepare data for API
+      const submissionData = {
+        name: formData.name,
+        phone: formData.phone,
+        location: formData.location,
+        price: parseInt(formData.price),
+        area: parseInt(formData.area),
+        landType: selectedLandType,
+        images_urls: imageUrls,
+      };
+
+      // Call API
+      await sellLandService.createSubmission(submissionData);
+      
+      // Clear saved form data
+      sessionStorage.removeItem('pendingSellForm');
+      
+      // Show success
+      setShowSuccess(true);
+    } catch (err) {
+      setError(err.message || "Failed to submit. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const resetForm = () => {
     setShowSuccess(false);
     setCurrentStep(1);
     setSelectedLandType("");
+    setError("");
+    setSelectedFiles([]);
     setFormData({
       name: "",
       phone: "",
@@ -111,6 +216,13 @@ const SellLandForm = () => {
                 <span className="land-type-badge">{selectedLandType}</span>
               </div>
 
+              {error && (
+                <div className="error-alert">
+                  <AlertCircle size={18} />
+                  <span>{error}</span>
+                </div>
+              )}
+
               <form onSubmit={handleSubmit}>
                 <div className="form-grid">
                   <div className="form-instruction">
@@ -173,10 +285,70 @@ const SellLandForm = () => {
                       required
                     />
                   </div>
+
+                  {/* Image Upload Section */}
+                  <div className="form-instruction form-grid-full">
+                    <label>
+                      <ImageIcon size={18} style={{display: 'inline', marginRight: '8px', verticalAlign: 'middle'}} />
+                      Land Images * (Max 10)
+                    </label>
+                    <input
+                      type="file"
+                      id="land-images"
+                      multiple
+                      accept="image/jpeg,image/jpg,image/png,image/webp,image/gif"
+                      onChange={handleFileSelect}
+                      required
+                    />
+                    
+                    {selectedFiles.length > 0 && (
+                      <div style={{marginTop: '12px'}}>
+                        <p style={{fontSize: '0.875rem', fontWeight: '600', marginBottom: '8px', color: '#10b981'}}>
+                          {selectedFiles.length} file(s) selected
+                        </p>
+                        <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))', gap: '8px'}}>
+                          {Array.from(selectedFiles).map((file, index) => (
+                            <div key={index} style={{position: 'relative', paddingTop: '100%', borderRadius: '8px', overflow: 'hidden', border: '2px solid #e5e7eb'}}>
+                              <img
+                                src={URL.createObjectURL(file)}
+                                alt={`Selected ${index + 1}`}
+                                style={{position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover'}}
+                              />
+                              <button
+                                type="button"
+                                onClick={() => handleRemoveSelectedFile(index)}
+                                style={{
+                                  position: 'absolute',
+                                  top: '4px',
+                                  right: '4px',
+                                  background: '#ef4444',
+                                  color: 'white',
+                                  border: 'none',
+                                  borderRadius: '50%',
+                                  width: '24px',
+                                  height: '24px',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  cursor: 'pointer',
+                                  padding: 0
+                                }}
+                              >
+                                <X size={16} />
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                        <p style={{fontSize: '0.75rem', color: '#6b7280', marginTop: '8px', fontStyle: 'italic'}}>
+                          Images will be uploaded when you click "Submit Listing"
+                        </p>
+                      </div>
+                    )}
+                  </div>
                 </div>
 
-                <button type="submit" className="submit-button">
-                  Submit Listing
+                <button type="submit" className="submit-button" disabled={loading}>
+                  {loading ? "Submitting..." : "Submit Listing"}
                 </button>
               </form>
             </div>
