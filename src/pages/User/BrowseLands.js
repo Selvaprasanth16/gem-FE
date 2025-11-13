@@ -215,12 +215,12 @@ const BrowseLands = () => {
         {/* Land Type selection */}
         <div className="type-grid" style={{display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(260px, 1fr))', gap:16, marginBottom:24}}>
           {[
-            { key: 'all', label: 'All Types', desc: 'Show all available properties', icon: Globe2 },
-            { key: 'farm', label: 'Coconut Land', desc: 'Agricultural coconut plantation', icon: Trees },
-            { key: 'land', label: 'Empty Land', desc: 'Vacant land ready for development', icon: ImageIcon },
-            { key: 'commercial', label: 'Commercial Land', desc: 'Business and commercial use', icon: Building2 },
-            { key: 'residential', label: 'House', desc: 'Residential property with structure', icon: Home }
-          ].map(({key,label,desc,icon:Icon}) => (
+            { key: 'all', label: 'All Types', desc: 'Show all available properties', icon: '🌐' },
+            { key: 'farm', label: 'Coconut Land', desc: 'Agricultural coconut plantation', icon: '🥥' },
+            { key: 'land', label: 'Empty Land', desc: 'Vacant land ready for development', icon: '🌍' },
+            { key: 'commercial', label: 'Commercial Land', desc: 'Business and commercial use', icon: '🏢' },
+            { key: 'residential', label: 'House', desc: 'Residential property with structure', icon: '🏠' }
+          ].map(({key,label,desc,icon}) => (
             <button
               key={key}
               onClick={() => { setActiveType(key); setFilters(f => ({...f, property_type: key==='all' ? '' : key})); }}
@@ -230,8 +230,8 @@ const BrowseLands = () => {
                 background:'#fff', border:'2px solid #e5e7eb', borderRadius:12, textAlign:'left'
               }}
             >
-              <div className="type-icon" style={{width:48,height:48,borderRadius:12,display:'flex',alignItems:'center',justifyContent:'center',background:'#f0fdf4',color:'#10b981'}}>
-                <Icon size={24}/>
+              <div className="type-icon" style={{width:48,height:48,borderRadius:12,display:'flex',alignItems:'center',justifyContent:'center',background:'#f0fdf4'}}>
+                <span style={{fontSize: 24, lineHeight: 1}}>{icon}</span>
               </div>
               <div className="type-text" style={{display:'flex',flexDirection:'column'}}>
                 <strong style={{fontSize:'1.05rem'}}>{label}</strong>
