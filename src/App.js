@@ -11,6 +11,7 @@ import UserManagement from './pages/Admin/UserManagement';
 import SubmissionManagement from './pages/Admin/SubmissionManagement';
 import EnquiryManagement from './pages/Admin/EnquiryManagement';
 import LandManagement from './pages/Admin/LandManagement';
+import LandingContent from './pages/Admin/LandingContent';
 import MySubmissions from './pages/User/MySubmissions';
 import MyEnquiries from './pages/User/MyEnquiries';
 import BrowseLands from './pages/User/BrowseLands';
@@ -113,6 +114,14 @@ function App() {
           element={
             <ProtectedRoute requireAdmin={true}>
               <LandManagement />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/admin/landing" 
+          element={
+            <ProtectedRoute requireAdmin={true}>
+              <LandingContent />
             </ProtectedRoute>
           } 
         />

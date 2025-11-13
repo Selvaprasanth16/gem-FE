@@ -3,7 +3,16 @@ import { Link } from "react-router-dom";
 import { Instagram, MessageCircle, Phone, Mail, MapPin } from "lucide-react";
 import "../style/landingPageFooter.css";
 
-const LandingPageFooter = () => {
+const LandingPageFooter = ({ instagram }) => {
+  const ig = instagram || {
+    description:
+      "Join our community of land enthusiasts! Get daily inspiration, property showcases, and exclusive deals. Share your land journey with us!",
+    handle: "gem_realestate_",
+    url: "https://instagram.com/gem_realestate_",
+    followers: "10K+",
+    posts: "500+",
+    properties: "50+",
+  };
   return (
     <footer className="footer">
       <div className="footer-container">
@@ -20,7 +29,7 @@ const LandingPageFooter = () => {
             </p>
             <div className="footer-socials">
               <a
-                href="https://instagram.com/gem_realestate_"
+                href={ig.url}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="social-btn instagram"
@@ -102,30 +111,27 @@ const LandingPageFooter = () => {
             <Instagram className="instagram-icon-footer" />
             <h3>Follow Us on Instagram</h3>
           </div>
-          <p className="instagram-description">
-            Join our community of land enthusiasts! Get daily inspiration, property showcases, 
-            and exclusive deals. Share your land journey with us!
-          </p>
+          <p className="instagram-description">{ig.description}</p>
           <a
-            href="https://instagram.com/gem_realestate_"
+            href={ig.url}
             target="_blank"
             rel="noopener noreferrer"
             className="instagram-follow-btn"
           >
             <Instagram size={20} />
-            <span>Follow @gem_realestate_</span>
+            <span>Follow @{ig.handle}</span>
           </a>
           <div className="instagram-stats">
             <div className="stat-item">
-              <span className="stat-number">10K+</span>
+              <span className="stat-number">{ig.followers || '10K+'}</span>
               <span className="stat-label">Followers</span>
             </div>
             <div className="stat-item">
-              <span className="stat-number">500+</span>
+              <span className="stat-number">{ig.posts || '500+'}</span>
               <span className="stat-label">Posts</span>
             </div>
             <div className="stat-item">
-              <span className="stat-number">50+</span>
+              <span className="stat-number">{ig.properties || '50+'}</span>
               <span className="stat-label">Properties</span>
             </div>
           </div>

@@ -16,7 +16,14 @@ const LandManagement = ({ hideBackButton = false }) => {
   const [lands, setLands] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
+  const [filterType, setFilterType] = useState('');
+  const [filterLocation, setFilterLocation] = useState('');
+  const [minPrice, setMinPrice] = useState('');
+  const [maxPrice, setMaxPrice] = useState('');
+  const [minSize, setMinSize] = useState('');
+  const [maxSize, setMaxSize] = useState('');
   const [selectedLand, setSelectedLand] = useState(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -36,6 +43,7 @@ const LandManagement = ({ hideBackButton = false }) => {
     price: '',
     size: '',
     description: '',
+    features: '',
     images_urls: []
   });
 
@@ -64,7 +72,13 @@ const LandManagement = ({ hideBackButton = false }) => {
     }
     loadLands();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filterStatus]);
+  }, [filterStatus, filterType, filterLocation, minPrice, maxPrice, minSize, maxSize, debouncedSearch]);
+
+  // Debounce search input
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedSearch(searchTerm.trim()), 350);
+    return () => clearTimeout(t);
+  }, [searchTerm]);
 
   const showMessage = (type, title, message) => {
     setMessageModal({ type, title, message });
@@ -112,7 +126,7 @@ const LandManagement = ({ hideBackButton = false }) => {
         latitude: editLand.latitude === '' ? undefined : Number(editLand.latitude),
         longitude: editLand.longitude === '' ? undefined : Number(editLand.longitude),
         description: editLand.description,
-        features: editLand.features || undefined,
+        features: editLand.features ? [editLand.features] : undefined,
         status: editLand.status,
         images_urls: [...(editLand.images_urls || []), ...newUrls]
       };
@@ -131,7 +145,16 @@ const LandManagement = ({ hideBackButton = false }) => {
   const loadLands = async () => {
     try {
       setLoading(true);
-      const response = await adminService.getAllLands({ status: filterStatus });
+      const params = {};
+      if (filterStatus && filterStatus !== 'all') params.status = filterStatus;
+      if (filterType) params.property_type = filterType;
+      if (filterLocation) params.location = filterLocation;
+      if (minPrice) params.min_price = minPrice;
+      if (maxPrice) params.max_price = maxPrice;
+      if (minSize) params.min_size = minSize;
+      if (maxSize) params.max_size = maxSize;
+      if (debouncedSearch) params.search = debouncedSearch;
+      const response = await adminService.getAllLands(params);
       setLands(response.data?.lands || []);
     } catch (error) {
       console.error('Error loading lands:', error);
@@ -257,6 +280,7 @@ const LandManagement = ({ hideBackButton = false }) => {
         price: parseInt(newLand.price),
         size: parseInt(newLand.size),
         description: newLand.description,
+        features: newLand.features ? [newLand.features] : undefined,
         images_urls: imageUrls
       });
       
@@ -270,6 +294,7 @@ const LandManagement = ({ hideBackButton = false }) => {
         price: '',
         size: '',
         description: '',
+        features: '',
         images_urls: []
       });
       setSelectedFiles([]);
@@ -355,6 +380,19 @@ const LandManagement = ({ hideBackButton = false }) => {
                   </select>
                 </div>
                 <div className="form-group">
+                  <label>Features</label>
+                  <select
+                    value={editLand.features}
+                    onChange={(e) => setEditLand({...editLand, features: e.target.value})}
+                  >
+                    <option value="">Select one</option>
+                    <option value="residential">residential</option>
+                    <option value="commercial">commercial</option>
+                    <option value="agricultural">agricultural</option>
+                    <option value="Coconut Farm">Coconut Farm</option>
+                  </select>
+                </div>
+                <div className="form-group">
                   <label>Price (₹)</label>
                   <input
                     type="number"
@@ -408,19 +446,6 @@ const LandManagement = ({ hideBackButton = false }) => {
                     onChange={(e) => setEditLand({...editLand, description: e.target.value})}
                     rows="4"
                   />
-                </div>
-                <div className="form-group">
-                  <label>Features</label>
-                  <select
-                    value={editLand.features || ''}
-                    onChange={(e)=>setEditLand({...editLand, features: e.target.value})}
-                  >
-                    <option value="">Select one</option>
-                    <option value="residential">residential</option>
-                    <option value="commercial">commercial</option>
-                    <option value="agricultural">agricultural</option>
-                    <option value="Coconut Farm">Coconut Farm</option>
-                  </select>
                 </div>
                 <div className="form-group">
                   <label>Status</label>
@@ -545,8 +570,8 @@ const LandManagement = ({ hideBackButton = false }) => {
         </div>
       </div>
 
-      <div className="filters-section">
-        <div className="search-box">
+      <div className="filters-section" style={{display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(160px, 1fr))', gap:'10px', alignItems:'center'}}>
+        <div className="search-box" style={{gridColumn: '1 / -1'}}>
           <Search size={20} />
           <input
             type="text"
@@ -560,12 +585,30 @@ const LandManagement = ({ hideBackButton = false }) => {
           value={filterStatus}
           onChange={(e) => setFilterStatus(e.target.value)}
         >
-          <option value="all">All Lands</option>
+          <option value="all">All Status</option>
           <option value="available">Available</option>
           <option value="sold">Sold</option>
           <option value="pending">Pending</option>
-          <option value="unavailable">Unavailable</option>
+          <option value="rejected">Rejected</option>
         </select>
+        <select 
+          className="filter-select"
+          value={filterType}
+          onChange={(e) => setFilterType(e.target.value)}
+        >
+          <option value="">All Types</option>
+          <option value="land">Empty Land</option>
+          <option value="farm">Coconut / Farm</option>
+          <option value="commercial">Commercial</option>
+          <option value="residential">House / Residential</option>
+        </select>
+        <input className="filter-input" type="text" placeholder="Location" value={filterLocation} onChange={(e)=>setFilterLocation(e.target.value)} />
+        <input className="filter-input" type="number" min="0" placeholder="Min Price" value={minPrice} onChange={(e)=>setMinPrice(e.target.value)} />
+        <input className="filter-input" type="number" min="0" placeholder="Max Price" value={maxPrice} onChange={(e)=>setMaxPrice(e.target.value)} />
+        <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:'8px'}}>
+          <input className="filter-input" type="number" min="0" placeholder="Min Size" value={minSize} onChange={(e)=>setMinSize(e.target.value)} />
+          <input className="filter-input" type="number" min="0" placeholder="Max Size" value={maxSize} onChange={(e)=>setMaxSize(e.target.value)} />
+        </div>
       </div>
 
       <div className="table-container">

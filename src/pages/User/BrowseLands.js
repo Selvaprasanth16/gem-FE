@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import Popover from '@mui/material/Popover';
+// Removed MUI Popover; simplified filters UI
 import { useNavigate } from 'react-router-dom';
 import authService from '../../services/auth/authService';
 import enquiryService from '../../services/enquiry/enquiryService';
 import Navbar from '../../components/Navbar';
 import './UserPages.css';
 import { 
-  Search, MapPin, DollarSign, Maximize, Filter,
-  AlertCircle, Mail, CheckCircle, X
+  Search, MapPin, DollarSign, Maximize,
+  AlertCircle, Mail, CheckCircle, X, Trees, Image as ImageIcon, Building2, Home, Globe2
 } from 'lucide-react';
 
 const BrowseLands = () => {
@@ -18,7 +18,8 @@ const BrowseLands = () => {
   const [showEnquiryModal, setShowEnquiryModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showMobileModal, setShowMobileModal] = useState(false);
-  const [filterAnchorEl, setFilterAnchorEl] = useState(null);
+  // const [filterAnchorEl, setFilterAnchorEl] = useState(null); // removed
+  const [activeType, setActiveType] = useState('all');
   const [selectedLand, setSelectedLand] = useState(null);
   const [mobileNumber, setMobileNumber] = useState('');
   const [filters, setFilters] = useState({
@@ -41,6 +42,21 @@ const BrowseLands = () => {
     loadLands();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Debounce search typing to auto fetch
+  useEffect(() => {
+    const t = setTimeout(() => {
+      loadLands();
+    }, 400);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchTerm]);
+
+  // React to type changes
+  useEffect(() => {
+    loadLands();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeType, filters.property_type]);
 
   const loadLands = async () => {
     try {
@@ -168,17 +184,61 @@ const BrowseLands = () => {
           <div className="header-title">
             <MapPin size={32} />
             <div>
-              <h1>Browse Properties</h1>
+              <h1>{activeType === 'all' ? 'Browse Properties' : (
+                {
+                  all: 'Browse Properties',
+                  farm: 'Coconut Land',
+                  land: 'Empty Land',
+                  commercial: 'Commercial Land',
+                  residential: 'House'
+                }[activeType] || 'Browse Properties'
+              )}</h1>
               <p>Find your perfect land</p>
             </div>
           </div>
         </header>
 
-        {/* Filters Launcher */}
-        <div className="filters-section" style={{display:'flex', justifyContent:'flex-end'}}>
-          <button className="btn-secondary" onClick={(e) => setFilterAnchorEl(e.currentTarget)}>
-            <Filter size={16} /> Filters
-          </button>
+        {/* Filters section: only search */}
+        <div className="filters-section" style={{display:'flex', justifyContent:'center', marginBottom:16}}>
+          <div className="search-box" style={{border:'2px solid #e2e8f0', width:'100%', maxWidth: 800}}>
+            <Search size={20} />
+            <input
+              type="text"
+              placeholder="Search by name or location..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && loadLands()}
+            />
+          </div>
+        </div>
+
+        {/* Land Type selection */}
+        <div className="type-grid" style={{display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(260px, 1fr))', gap:16, marginBottom:24}}>
+          {[
+            { key: 'all', label: 'All Types', desc: 'Show all available properties', icon: Globe2 },
+            { key: 'farm', label: 'Coconut Land', desc: 'Agricultural coconut plantation', icon: Trees },
+            { key: 'land', label: 'Empty Land', desc: 'Vacant land ready for development', icon: ImageIcon },
+            { key: 'commercial', label: 'Commercial Land', desc: 'Business and commercial use', icon: Building2 },
+            { key: 'residential', label: 'House', desc: 'Residential property with structure', icon: Home }
+          ].map(({key,label,desc,icon:Icon}) => (
+            <button
+              key={key}
+              onClick={() => { setActiveType(key); setFilters(f => ({...f, property_type: key==='all' ? '' : key})); }}
+              className={`type-card ${activeType === key ? 'active' : ''}`}
+              style={{
+                display:'flex', alignItems:'center', gap:12, padding:16,
+                background:'#fff', border:'2px solid #e5e7eb', borderRadius:12, textAlign:'left'
+              }}
+            >
+              <div className="type-icon" style={{width:48,height:48,borderRadius:12,display:'flex',alignItems:'center',justifyContent:'center',background:'#f0fdf4',color:'#10b981'}}>
+                <Icon size={24}/>
+              </div>
+              <div className="type-text" style={{display:'flex',flexDirection:'column'}}>
+                <strong style={{fontSize:'1.05rem'}}>{label}</strong>
+                <small style={{color:'#6b7280'}}>{desc}</small>
+              </div>
+            </button>
+          ))}
         </div>
 
         <div className="results-header">
@@ -271,71 +331,7 @@ const BrowseLands = () => {
         )}
       </div>
 
-      {/* Filters Popover (MUI) */}
-      <Popover
-        open={Boolean(filterAnchorEl)}
-        anchorEl={filterAnchorEl}
-        onClose={() => setFilterAnchorEl(null)}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-        transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-        PaperProps={{ sx: { p: 2, borderRadius: 2, width: 360 } }}
-      >
-        <div style={{display:'grid', gap:12}}>
-          <div className="search-box" style={{border:'2px solid #e2e8f0'}}>
-            <Search size={20} />
-            <input
-              type="text"
-              placeholder="Search by title, location, or type..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-            />
-          </div>
-          <input
-            type="text"
-            className="filter-input"
-            placeholder="Location"
-            value={filters.location}
-            onChange={(e) => setFilters({...filters, location: e.target.value})}
-          />
-          <select
-            className="filter-input"
-            value={filters.property_type}
-            onChange={(e) => setFilters({...filters, property_type: e.target.value})}
-            style={{cursor: 'pointer'}}
-          >
-            <option value="">All Types</option>
-            <option value="land">Land</option>
-            <option value="farm">Farm</option>
-            <option value="commercial">Commercial</option>
-            <option value="residential">Residential</option>
-          </select>
-          <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:12}}>
-            <input
-              type="number"
-              className="filter-input"
-              placeholder="Min Price"
-              value={filters.min_price}
-              onChange={(e) => setFilters({...filters, min_price: e.target.value})}
-            />
-            <input
-              type="number"
-              className="filter-input"
-              placeholder="Max Price"
-              value={filters.max_price}
-              onChange={(e) => setFilters({...filters, max_price: e.target.value})}
-            />
-          </div>
-          <div className="modal-actions" style={{marginTop:8}}>
-            <button className="btn-secondary" onClick={() => { handleResetFilters(); }}>
-              Reset
-            </button>
-            <button className="btn-primary" onClick={() => { handleApplyFilters(); setFilterAnchorEl(null); }}>
-              <Filter size={16} /> Apply
-            </button>
-          </div>
-        </div>
-      </Popover>
+      {/* Removed Filters Popover */}
 
       {/* Mobile Number Modal for Guest Users */}
       {showMobileModal && selectedLand && (

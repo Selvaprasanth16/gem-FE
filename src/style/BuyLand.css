@@ -10,6 +10,37 @@
   padding: 20px;
 }
 
+/* Top toolbar just under title */
+.buy-toolbar {
+  max-width: 1200px;
+  margin: 20px auto 10px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.buy-toolbar .buy-search {
+  flex: 1;
+  padding: 14px 18px;
+  border-radius: 12px;
+  border: 2px solid #e5e7eb;
+  background: #ffffff;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+}
+
+.filters-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  border-radius: 10px;
+  background: #eef2f7;
+  color: #475569;
+  border: 1px solid #e2e8f0;
+  font-weight: 700;
+}
+.filters-btn:hover { background: #e9eef6; }
+
 .buy-title {
   font-size: 2.5rem;
   font-weight: 800;
@@ -28,6 +59,18 @@
 .type-section {
   max-width: 1200px;
   margin: 0 auto 60px;
+}
+
+/* Mobile type dropdown visible only on small screens */
+.type-select-mobile { display: none; margin-bottom: 14px; }
+.type-select-mobile select {
+  width: 100%;
+  padding: 12px 14px;
+  border: 2px solid #e5e7eb;
+  border-radius: 10px;
+  background: #fff;
+  font-weight: 600;
+  color: #1f2937;
 }
 
 .section-heading {
@@ -104,7 +147,7 @@
   color: #6b7280;
 }
 
-.filters {
+.filters, .buy-filters {
   max-width: 1200px;
   margin: 0 auto 40px;
   display: flex;
@@ -112,7 +155,7 @@
   gap: 16px;
 }
 
-.search {
+.search, .buy-search {
   display: flex;
   align-items: center;
   gap: 12px;
@@ -123,16 +166,16 @@
   transition: border-color 0.3s ease;
 }
 
-.search:focus-within {
+.search:focus-within, .buy-search:focus-within {
   border-color: #10b981;
 }
 
-.search-icon {
+.search-icon, .buy-search-icon {
   color: #9ca3af;
   flex-shrink: 0;
 }
 
-.search input {
+.search input, .buy-search input {
   flex: 1;
   border: none;
   outline: none;
@@ -140,7 +183,7 @@
   color: #1f2937;
 }
 
-.search input::placeholder {
+.search input::placeholder, .buy-search input::placeholder {
   color: #9ca3af;
 }
 
@@ -161,7 +204,7 @@
   background: #f3f4f6;
 }
 
-.sort {
+.sort, .buy-sort {
   display: flex;
   align-items: center;
   gap: 12px;
@@ -174,7 +217,7 @@
   font-weight: 500;
 }
 
-.dropdown {
+.dropdown, .buy-dropdown {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -189,10 +232,44 @@
   transition: all 0.2s ease;
 }
 
-.dropdown:hover {
+.dropdown:hover, .buy-dropdown:hover {
   border-color: #10b981;
   background: #f9fafb;
 }
+
+/* Results */
+.results-grid {
+  max-width: 1200px;
+  margin: 0 auto 60px;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.land-card {
+  background: #ffffff;
+  border: 2px solid #e5e7eb;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0,0,0,.06);
+  display: flex;
+  flex-direction: column;
+}
+
+.land-image { height: 180px; background: #f3f4f6; }
+.land-image img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.image-fallback { width: 100%; height: 100%; display:flex; align-items:center; justify-content:center; color:#9ca3af; }
+
+.land-body { padding: 14px 16px; display:flex; flex-direction:column; gap: 8px; }
+.land-title { font-size: 1.05rem; font-weight: 700; color:#0f172a; margin:0; }
+.land-meta { display:flex; gap: 10px; color:#6b7280; font-size:.9rem; }
+.land-footer { margin-top:auto; display:flex; justify-content:space-between; align-items:center; }
+.price { color:#059669; font-weight:800; }
+.view-btn { background:#10b981; color:#fff; padding:8px 12px; border-radius:10px; text-decoration:none; font-weight:700; }
+.view-btn:hover { background:#059669; }
 
 .results-placeholder {
   max-width: 1200px;
@@ -219,6 +296,9 @@
     padding: 24px 16px;
   }
 
+  .buy-toolbar { gap: 12px; }
+  .filters-btn { padding: 10px 12px; }
+
   .buy-title {
     font-size: 2rem;
   }
@@ -241,23 +321,26 @@
     padding: 20px;
   }
 
-  .filters {
+  .filters, .buy-filters {
     gap: 12px;
   }
 
-  .sort {
+  .sort, .buy-sort {
     flex-direction: column;
     align-items: flex-start;
     gap: 8px;
   }
 
-  .dropdown {
+  .dropdown, .buy-dropdown {
     width: 100%;
     justify-content: space-between;
   }
 }
 
 @media (max-width: 480px) {
+  .buy-toolbar { flex-direction: column; align-items: stretch; }
+  .filters-btn { width: 100%; justify-content: center; }
+
   .buy-title {
     font-size: 1.75rem;
   }
@@ -271,6 +354,10 @@
     text-align: center;
     padding: 24px 16px;
   }
+
+  /* Show dropdown; hide chip grid on very small screens */
+  .type-select-mobile { display: block; }
+  .type-grid { display: none; }
 
   .type-text {
     align-items: center;

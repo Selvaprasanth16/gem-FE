@@ -5,8 +5,9 @@ import adminService from '../../services/admin/adminService';
 import './AdminPages.css';
 import { 
   ArrowLeft, FileText, Search, CheckCircle, XCircle, 
-  Eye, TrendingUp, MapPin, DollarSign, AlertCircle, Edit
+  Eye, TrendingUp, MapPin, DollarSign, AlertCircle, Edit, Image as ImageIcon
 } from 'lucide-react';
+import imageUploadService from '../../services/admin/imageUploadService';
 
 const SubmissionManagement = ({ hideBackButton = false }) => {
   const navigate = useNavigate();
@@ -20,6 +21,22 @@ const SubmissionManagement = ({ hideBackButton = false }) => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [rejectionReason, setRejectionReason] = useState('');
   const [editingSubmission, setEditingSubmission] = useState(null);
+  const [showMoveModal, setShowMoveModal] = useState(false);
+  const [moveForm, setMoveForm] = useState({
+    title: '',
+    location: '',
+    property_type: 'Coconut Land',
+    price: '',
+    size: '',
+    size_unit: 'sqft',
+    description: '',
+    features: '',
+    address: '',
+    coordinates: '',
+    images_urls: []
+  });
+  const [moveFiles, setMoveFiles] = useState([]);
+  const [moving, setMoving] = useState(false);
 
   useEffect(() => {
     if (!authService.isAdmin()) {
@@ -64,14 +81,69 @@ const SubmissionManagement = ({ hideBackButton = false }) => {
     }
   };
 
-  const handleMoveToLand = async (id) => {
-    if (window.confirm('Move this submission to Land model?')) {
-      try {
-        await adminService.moveToLand(id);
-        loadSubmissions();
-      } catch (error) {
-        alert('Error: ' + error.message);
+  const openMoveModal = (submission) => {
+    // Prefill from submission
+    setMoveForm({
+      title: `${submission.owner_name}'s Land`,
+      location: submission.location || '',
+      property_type: (
+        submission.land_type === 'Coconut Land' ? 'Coconut Land' :
+        submission.land_type === 'Empty Land' ? 'Empty Land' :
+        submission.land_type === 'Commercial Land' ? 'Commercial Land' :
+        'House'
+      ),
+      price: submission.price ?? '',
+      size: submission.area ?? '',
+      size_unit: 'sqft',
+      description: '' ,
+      address: submission.location || '',
+      coordinates: '',
+      images_urls: []
+    });
+    setMoveFiles([]);
+    setSelectedSubmission(submission);
+    setShowMoveModal(true);
+  };
+
+  const handleMoveFiles = (e) => {
+    const files = Array.from(e.target.files);
+    if (files.length > 10) return alert('Maximum 10 images allowed');
+    setMoveFiles(files);
+  };
+
+  const handleCreateLandFromSubmission = async (e) => {
+    e.preventDefault();
+    try {
+      setMoving(true);
+      // Upload images if any
+      let newUrls = [];
+      if (moveFiles.length > 0) {
+        const uploadRes = await imageUploadService.uploadLandImages(moveFiles);
+        newUrls = uploadRes.image_urls || [];
       }
+      const payload = {
+        title: moveForm.title,
+        location: moveForm.location,
+        property_type: moveForm.property_type,
+        price: moveForm.price === '' ? undefined : parseInt(moveForm.price),
+        size: moveForm.size === '' ? undefined : parseInt(moveForm.size),
+        size_unit: moveForm.size_unit,
+        description: moveForm.description,
+        features: moveForm.features ? [moveForm.features] : undefined,
+        address: moveForm.address,
+        coordinates: moveForm.coordinates,
+        images_urls: [...(moveForm.images_urls||[]), ...newUrls]
+      };
+      await adminService.createLand(payload);
+      // mark submission as moved if backend supports update
+      try { await adminService.updateSubmission(selectedSubmission.id, { status: 'moved_to_land' }); } catch {}
+      setShowMoveModal(false);
+      setMoveFiles([]);
+      loadSubmissions();
+    } catch (error) {
+      alert('Error: ' + (error.message || 'Failed to create land'));
+    } finally {
+      setMoving(false);
     }
   };
 
@@ -132,6 +204,92 @@ const SubmissionManagement = ({ hideBackButton = false }) => {
             Back to Dashboard
           </button>
         )}
+
+      {/* Move to Land - Creation Modal */}
+      {showMoveModal && selectedSubmission && (
+        <div className="modal-overlay" onClick={() => setShowMoveModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>Create Land from Submission</h2>
+              <button className="modal-close" onClick={() => setShowMoveModal(false)}>
+                <XCircle size={24} />
+              </button>
+            </div>
+            <form onSubmit={handleCreateLandFromSubmission}>
+              <div style={{padding:'24px', display:'grid', gap:'12px'}}>
+                <div className="form-group">
+                  <label>Title *</label>
+                  <input type="text" value={moveForm.title} onChange={(e)=>setMoveForm({...moveForm, title:e.target.value})} required />
+                </div>
+                <div className="form-group">
+                  <label>Location *</label>
+                  <input type="text" value={moveForm.location} onChange={(e)=>setMoveForm({...moveForm, location:e.target.value})} required />
+                </div>
+                <div className="form-group">
+                  <label>Address *</label>
+                  <input type="text" value={moveForm.address} onChange={(e)=>setMoveForm({...moveForm, address:e.target.value})} required />
+                </div>
+                <div className="form-group">
+                  <label>Property Type *</label>
+                  <select value={moveForm.property_type} onChange={(e)=>setMoveForm({...moveForm, property_type:e.target.value})} required>
+                    <option value="Coconut Land">Coconut Land</option>
+                    <option value="Empty Land">Empty Land</option>
+                    <option value="Commercial Land">Commercial Land</option>
+                    <option value="House">House</option>
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label>Price (₹)</label>
+                  <input type="number" min="0" value={moveForm.price} onChange={(e)=>setMoveForm({...moveForm, price:e.target.value})} />
+                </div>
+                <div className="form-group">
+                  <label>Size</label>
+                  <div style={{display:'grid', gridTemplateColumns:'1fr 140px', gap:'8px'}}>
+                    <input type="number" min="1" value={moveForm.size} onChange={(e)=>setMoveForm({...moveForm, size:e.target.value})} />
+                    <select value={moveForm.size_unit} onChange={(e)=>setMoveForm({...moveForm, size_unit:e.target.value})}>
+                      <option value="sqft">sqft</option>
+                      <option value="acres">acres</option>
+                    </select>
+                  </div>
+                </div>
+                <div className="form-group">
+                  <label>Coordinates (optional: lat,lon or Google Maps URL)</label>
+                  <input type="text" value={moveForm.coordinates} onChange={(e)=>setMoveForm({...moveForm, coordinates:e.target.value})} placeholder="11.11, 77.77 or https://maps.google..." />
+                </div>
+                <div className="form-group">
+                  <label>Description</label>
+                  <textarea rows="3" value={moveForm.description} onChange={(e)=>setMoveForm({...moveForm, description:e.target.value})} />
+                </div>
+                <div className="form-group">
+                  <label>Features</label>
+                  <select value={moveForm.features} onChange={(e)=>setMoveForm({...moveForm, features:e.target.value})}>
+                    <option value="">Select one</option>
+                    <option value="residential">residential</option>
+                    <option value="commercial">commercial</option>
+                    <option value="agricultural">agricultural</option>
+                    <option value="Coconut Farm">Coconut Farm</option>
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label>
+                    <ImageIcon size={18} style={{display:'inline', marginRight:8}}/>Upload Images (optional)
+                  </label>
+                  <input type="file" multiple accept="image/*" onChange={handleMoveFiles} />
+                  {moveFiles.length>0 && (
+                    <p style={{fontSize:'0.875rem', color:'#10b981', marginTop:6}}>{moveFiles.length} file(s) selected</p>
+                  )}
+                </div>
+                <div className="modal-actions">
+                  <button type="button" className="btn-secondary" onClick={()=>setShowMoveModal(false)}>Cancel</button>
+                  <button type="submit" className="btn-primary" disabled={moving}>
+                    {moving ? 'Creating...' : (<><CheckCircle size={16}/> Create Land</>)}
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
         <div className="header-title">
           <FileText size={32} />
           <div>
@@ -279,7 +437,7 @@ const SubmissionManagement = ({ hideBackButton = false }) => {
                     {submission.status === 'approved' && (
                       <button 
                         className="btn-icon btn-approve"
-                        onClick={(e) => { e.stopPropagation(); handleMoveToLand(submission.id); }}
+                        onClick={(e) => { e.stopPropagation(); openMoveModal(submission); }}
                         title="Move to Land"
                       >
                         <TrendingUp size={16} />

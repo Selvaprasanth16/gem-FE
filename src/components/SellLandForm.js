@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import Navbar from "./Navbar";
 import sellLandService from "../services/sellLand/sellLandService";
-import imageUploadService from "../services/admin/imageUploadService";
+// Removed admin image upload usage to allow user submissions without admin access
 import authService from "../services/auth/authService";
 
 const landTypes = [
@@ -107,19 +107,15 @@ const SellLandForm = () => {
       return;
     }
 
-    if (selectedFiles.length === 0) {
-      setError('Please select at least one image');
-      return;
-    }
+    // if (selectedFiles.length === 0) {
+    //   setError('Please select at least one image');
+    //   return;
+    // }
 
     setLoading(true);
 
     try {
-      // Step 1: Upload images to Cloudinary
-      const imageResponse = await imageUploadService.uploadLandImages(selectedFiles);
-      const imageUrls = imageResponse.image_urls;
-      
-      // Step 2: Prepare data for API
+      // Prepare data for API (images upload skipped for non-admin submission)
       const submissionData = {
         name: formData.name,
         phone: formData.phone,
@@ -127,7 +123,7 @@ const SellLandForm = () => {
         price: parseInt(formData.price),
         area: parseInt(formData.area),
         landType: selectedLandType,
-        images_urls: imageUrls,
+        // images_urls: [] // optional: backend can ignore if not provided
       };
 
       // Call API
@@ -286,7 +282,7 @@ const SellLandForm = () => {
                     />
                   </div>
 
-                  {/* Image Upload Section */}
+                  {/* Image Upload Section
                   <div className="form-instruction form-grid-full">
                     <label>
                       <ImageIcon size={18} style={{display: 'inline', marginRight: '8px', verticalAlign: 'middle'}} />
@@ -344,7 +340,7 @@ const SellLandForm = () => {
                         </p>
                       </div>
                     )}
-                  </div>
+                  </div> */}
                 </div>
 
                 <button type="submit" className="submit-button" disabled={loading}>

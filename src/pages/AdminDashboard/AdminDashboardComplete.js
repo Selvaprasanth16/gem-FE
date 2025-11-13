@@ -7,6 +7,7 @@ import SubmissionManagement from '../Admin/SubmissionManagement';
 import EnquiryManagement from '../Admin/EnquiryManagement';
 import LandManagement from '../Admin/LandManagement';
 import AdminProfile from '../Admin/AdminProfile';
+import LandingContent from '../Admin/LandingContent';
 import './AdminDashboardComplete.css';
 import { 
   Shield, LogOut, User, Users, FileText, CheckCircle, 
@@ -135,6 +136,13 @@ const AdminDashboardComplete = () => {
         >
           <MapPin size={18} />
           Lands
+        </button>
+        <button 
+          className={`tab ${activeTab === 'landing' ? 'active' : ''}`}
+          onClick={() => setActiveTab('landing')}
+        >
+          <PieChart size={18} />
+          Landing
         </button>
         <button 
           className={`tab ${activeTab === 'profile' ? 'active' : ''}`}
@@ -367,6 +375,13 @@ const AdminDashboardComplete = () => {
         {activeTab === 'lands' && (
           <div className="tab-content">
             <LandManagement hideBackButton={true} />
+          </div>
+        )}
+
+        {/* Landing Content Tab */}
+        {activeTab === 'landing' && (
+          <div className="tab-content">
+            <LandingContent />
           </div>
         )}
       </main>

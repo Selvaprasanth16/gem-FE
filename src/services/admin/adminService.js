@@ -449,12 +449,9 @@ class AdminService {
    */
   async updateLandStatus(landId, status) {
     try {
-      const response = await apiCall('/admin/lands/update-status', {
+      const response = await apiCall(`/admin/lands/update-status?id=${landId}`, {
         method: 'PUT',
-        body: JSON.stringify({ 
-          land_id: landId,
-          status: status 
-        }),
+        body: JSON.stringify({ status }),
       });
       return response;
     } catch (error) {
@@ -470,12 +467,9 @@ class AdminService {
    */
   async updateLand(landId, updateData) {
     try {
-      const response = await apiCall('/admin/lands/update', {
+      const response = await apiCall(`/admin/lands/update?id=${landId}`, {
         method: 'PUT',
-        body: JSON.stringify({ 
-          land_id: landId,
-          ...updateData 
-        }),
+        body: JSON.stringify(updateData),
       });
       return response;
     } catch (error) {
