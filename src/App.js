@@ -1,4 +1,5 @@
 import './App.css';
+import AlertProvider from './components/AlertProvider.jsx';
 import { Routes, Route, Navigate } from "react-router-dom";
 import Landing from './components/landing';
 import SellLandForm from './components/SellLandForm';
@@ -22,7 +23,7 @@ import AdminProfile from './pages/Admin/AdminProfile';
 
 function App() {
   return (
-    <>
+    <AlertProvider>
       <Routes>
         {/* Public Routes */}
         <Route path="/" element={<Landing />} />
@@ -129,7 +130,7 @@ function App() {
         {/* Fallback Route */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
-    </>
+    </AlertProvider>
   );
 }
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 // Removed MUI Popover; simplified filters UI
 import { useNavigate } from 'react-router-dom';
 import authService from '../../services/auth/authService';
@@ -28,6 +28,10 @@ const BrowseLands = () => {
     max_price: '',
     location: ''
   });
+
+  // Ref: results section to scroll into view after type selection
+  const resultsRef = useRef(null);
+  const shouldScrollAfterLoadRef = useRef(false);
   const [enquiryForm, setEnquiryForm] = useState({
     enquiry_type: 'buy_interest',
     contact_name: '',
@@ -73,6 +77,19 @@ const BrowseLands = () => {
       const response = await enquiryService.getAvailableLands(filterParams);
       console.log('Received lands:', response.lands?.length, 'properties');
       setLands(response.lands || []);
+      // If triggered by type selection, scroll to results after load
+      if (shouldScrollAfterLoadRef.current) {
+        shouldScrollAfterLoadRef.current = false;
+        // Smooth scroll with small offset for header
+        requestAnimationFrame(() => {
+          const el = resultsRef.current;
+          if (el) {
+            const rect = el.getBoundingClientRect();
+            const top = rect.top + window.scrollY - 80; // offset
+            window.scrollTo({ top, behavior: 'smooth' });
+          }
+        });
+      }
     } catch (error) {
       console.error('Error loading lands:', error);
     } finally {
@@ -184,15 +201,19 @@ const BrowseLands = () => {
           <div className="header-title">
             <MapPin size={32} />
             <div>
-              <h1>{activeType === 'all' ? 'Browse Properties' : (
-                {
-                  all: 'Browse Properties',
-                  farm: 'Coconut Land',
-                  land: 'Empty Land',
-                  commercial: 'Commercial Land',
-                  residential: 'House'
-                }[activeType] || 'Browse Properties'
-              )}</h1>
+              <h1>
+                Browse Properties
+                {activeType !== 'all' && (
+                  <span style={{
+                    marginLeft: 8,
+                    fontSize: '0.85em',
+                    fontWeight: 800,
+                    color: '#10b981'
+                  }}>
+                    · {({ farm: 'Coconut Land', land: 'Empty Land', commercial: 'Commercial Land', residential: 'House' }[activeType] || '')}
+                  </span>
+                )}
+              </h1>
               <p>Find your perfect land</p>
             </div>
           </div>
@@ -223,7 +244,12 @@ const BrowseLands = () => {
           ].map(({key,label,desc,icon}) => (
             <button
               key={key}
-              onClick={() => { setActiveType(key); setFilters(f => ({...f, property_type: key==='all' ? '' : key})); }}
+              onClick={() => {
+                // apply filter and mark to scroll after data refresh
+                setActiveType(key);
+                setFilters(f => ({...f, property_type: key==='all' ? '' : key}));
+                shouldScrollAfterLoadRef.current = true;
+              }}
               className={`type-card ${activeType === key ? 'active' : ''}`}
               style={{
                 display:'flex', alignItems:'center', gap:12, padding:16,
@@ -241,7 +267,7 @@ const BrowseLands = () => {
           ))}
         </div>
 
-        <div className="results-header">
+        <div ref={resultsRef} className="results-header">
           <p>{lands.length} properties found</p>
         </div>
 

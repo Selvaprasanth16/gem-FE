@@ -3,7 +3,7 @@ import { Shield, Award, Users, Leaf, MapPin } from 'lucide-react';
 import '../style/landing.css';
 import '../style/landing-urgent.css';
 import LandingPageFooter from './landingPageFooter.js';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import siteContentService from '../services/content/siteContentService';
 
 const CountUp = ({ end, duration = 2000, suffix = '' }) => {
@@ -50,6 +50,7 @@ const CountUp = ({ end, duration = 2000, suffix = '' }) => {
 
 const Landing = ({ contentOverride = null }) => {
   const [content, setContent] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     let active = true;
@@ -125,7 +126,25 @@ const Landing = ({ contentOverride = null }) => {
           </div>
           <div className="urgent-grid">
             {urgent.map((u, idx) => (
-              <div key={idx} className="urgent-card">
+              <div
+                key={idx}
+                className="urgent-card"
+                onClick={() => {
+                  if (u.land_id) {
+                    navigate(`/land/${u.land_id}`);
+                  }
+                }}
+                style={{ cursor: u.land_id ? 'pointer' : undefined }}
+                role={u.land_id ? 'button' : undefined}
+                tabIndex={u.land_id ? 0 : undefined}
+                onKeyDown={(e) => {
+                  if (!u.land_id) return;
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    navigate(`/land/${u.land_id}`);
+                  }
+                }}
+              >
                 {u.image_url && (
                   <div className="urgent-image-wrap">
                     <img src={u.image_url} alt={u.title || 'Urgent Property'} />
@@ -142,12 +161,19 @@ const Landing = ({ contentOverride = null }) => {
                   <div className="urgent-footer">
                     <div className="urgent-price">{formatINR(u.price)}</div>
                     <div className="urgent-actions">
-                      <Link to={u.land_id ? `/land/${u.land_id}` : '/buy'} className="urgent-btn">View Details</Link>
+                      <Link
+                        to={u.land_id ? `/land/${u.land_id}` : '/buy'}
+                        className="urgent-btn"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        View Details
+                      </Link>
                       <a
                         className="urgent-btn wa"
                         target="_blank"
                         rel="noopener noreferrer"
                         href={`https://wa.me/919894351011?text=${encodeURIComponent(`I'm interested in this property: ${u.title || 'Property'}${u.location ? ' - ' + u.location : ''}. Details: ${typeof window!== 'undefined' ? window.location.origin : ''}${u.land_id ? '/land/'+u.land_id : '/buy'}`)}`}
+                        onClick={(e) => e.stopPropagation()}
                       >
                         WhatsApp
                       </a>

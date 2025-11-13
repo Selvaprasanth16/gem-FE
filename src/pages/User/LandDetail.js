@@ -25,6 +25,7 @@ const LandDetail = () => {
   });
   const [showMobileModal, setShowMobileModal] = useState(false);
   const [mobileNumber, setMobileNumber] = useState('');
+  const [showDuplicateModal, setShowDuplicateModal] = useState(false);
 
   useEffect(() => {
     loadLandDetails();
@@ -69,13 +70,17 @@ const LandDetail = () => {
   const submitGuestMobile = async (e) => {
     e.preventDefault();
     try {
-      await enquiryService.createGuestEnquiry({
+      const resp = await enquiryService.createGuestEnquiry({
         land_id: id,
         contact_phone: mobileNumber,
       });
       setShowMobileModal(false);
       setMobileNumber('');
-      alert('Thank you! We will contact you soon.');
+      if (resp && resp.duplicate) {
+        setShowDuplicateModal(true);
+      } else {
+        alert('Thank you! We will contact you soon.');
+      }
     } catch (err) {
       alert(err.message || 'Failed to submit.');
     }
@@ -114,7 +119,7 @@ const LandDetail = () => {
   const submitEnquiry = async (e) => {
     e.preventDefault();
     try {
-      await enquiryService.createEnquiry({
+      const resp = await enquiryService.createEnquiry({
         land_id: id,
         enquiry_type: 'buy_interest',
         contact_name: enquiryForm.contact_name,
@@ -123,7 +128,11 @@ const LandDetail = () => {
         message: enquiryForm.message || undefined
       });
       setShowEnquiryModal(false);
-      alert('Enquiry submitted successfully');
+      if (resp && resp.duplicate) {
+        setShowDuplicateModal(true);
+      } else {
+        alert('Enquiry submitted successfully');
+      }
     } catch (err) {
       alert(err.message || 'Failed to submit enquiry');
     }
@@ -196,6 +205,34 @@ const LandDetail = () => {
                   {land.status === 'available' && (
                     <div className="new-badge">New</div>
                   )}
+
+      {/* Duplicate Modal */}
+      {showDuplicateModal && (
+        <div className="modal-overlay" onClick={() => setShowDuplicateModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{maxWidth: '420px'}}>
+            <div className="modal-header">
+              <h2>Already Submitted</h2>
+              <button className="modal-close" onClick={() => setShowDuplicateModal(false)}>
+                <XCircle size={24} />
+              </button>
+            </div>
+            <div style={{padding: '24px'}}>
+              <p style={{marginBottom: 16, color:'#374151'}}>
+                You have already submitted your interest. We will contact you soon.
+              </p>
+              <a
+                className="btn-primary"
+                href={`https://wa.me/919894351011?text=${encodeURIComponent("I’m interested in this property — please provide a quicker response.")}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{display:'inline-flex', alignItems:'center', gap:8}}
+              >
+                <Phone size={16}/> WhatsApp
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
                   {land.images_urls.length > 1 && (
                     <>
                       <button className="nav-button prev" onClick={handlePrevImage}>
