@@ -431,6 +431,29 @@ const BrowseLands = () => {
               <p style={{marginBottom: '24px', color: '#6b7280', fontSize: '16px'}}>
                 We will contact you soon regarding <strong>{selectedLand.title}</strong>.
               </p>
+              <div style={{marginBottom: '16px', textAlign: 'center'}}>
+                <div style={{ fontSize: 13, color: '#64748b', marginBottom: 8 }}>For faster response, contact via WhatsApp</div>
+                <a
+                  href={`https://wa.me/919894351011?text=${encodeURIComponent("I’m interested in this property — please provide a quicker response.")}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    background: '#10b981',
+                    color: '#ffffff',
+                    textDecoration: 'none',
+                    fontWeight: 700,
+                    padding: '10px 16px',
+                    borderRadius: 10,
+                    boxShadow: '0 6px 18px rgba(16,185,129,.2)'
+                  }}
+                >
+                  <span role="img" aria-label="whatsapp">💬</span>
+                  <span>WhatsApp</span>
+                </a>
+              </div>
               <div style={{display: 'flex', justifyContent: 'center'}}>
                 <button 
                   className="btn-secondary"
